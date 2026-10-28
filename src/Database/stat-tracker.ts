@@ -1,5 +1,5 @@
 import type { DailyData, GraceData, ReadingData, StreakData, NotificationData, TrackingData } from "./db.types.js";
-import type { GlucoseReading } from "../Glucose/glucose.types.js";
+import type { Reading } from "../Glucose/glucose.types.js";
 import { DEFAULT_GLUCOSE_RANGE } from "../Glucose/glucose.types.js";
 import { minutes, gracePeriod } from '../../constants.js'
 
@@ -8,7 +8,7 @@ export class StatTracker {
 
     //SET ALL DATA
 
-    getNewData(reading: GlucoseReading,prevData: TrackingData): TrackingData {
+    getNewData(reading: Reading, prevData: TrackingData): TrackingData {
         let newData = {
             reading: this.setReading(reading, prevData),
             streak: this.setStreak(reading, prevData),
@@ -21,22 +21,22 @@ export class StatTracker {
 
     //SET READING DATA
 
-    isInBounds(reading: GlucoseReading): boolean {
+    isInBounds(reading: Reading): boolean {
         return (
             reading.value >= DEFAULT_GLUCOSE_RANGE.acceptableMin &&
             reading.value <= DEFAULT_GLUCOSE_RANGE.acceptableMax
         );
     }
 
-    isLow(reading: GlucoseReading): boolean {
+    isLow(reading: Reading): boolean {
         return reading.value < 55
     }
 
-    isHigh(reading: GlucoseReading): boolean {
+    isHigh(reading: Reading): boolean {
         return reading.value > 300;
     }
 
-    setReading(reading: GlucoseReading, data: TrackingData): ReadingData {
+    setReading(reading: Reading, data: TrackingData): ReadingData {
         const newData: ReadingData = {
             timestamp: reading.timestamp.getTime(),
             value: reading.value,
@@ -49,12 +49,12 @@ export class StatTracker {
 
     //SET STREAK DATA
 
-    isStreak(reading: GlucoseReading): boolean {
+    isStreak(reading: Reading): boolean {
         return this.isInBounds(reading);
     }
 
     //LOGIC CONCERNING GRACE AND STREAKS WILL LIVE HERE
-    duration(reading: GlucoseReading, prevData: TrackingData): number {
+    duration(reading: Reading, prevData: TrackingData): number {
         //If streak is active increment duration
         if(this.isStreak(reading)){
             return prevData.streak.duration + 1;
@@ -68,7 +68,7 @@ export class StatTracker {
     }
 
 
-    setStreak(reading: GlucoseReading, prevData: TrackingData): StreakData {
+    setStreak(reading: Reading, prevData: TrackingData): StreakData {
         const newData: StreakData = {
             streak: this.isStreak(reading),
             duration: this.duration(reading, prevData)
@@ -78,11 +78,15 @@ export class StatTracker {
 
     //SET GRACE DATA
 
-    isGrace(reading: GlucoseReading, prevData: TrackingData): boolean {
-        return (!this.isInBounds(reading) && prevData.streak.streak);
+    isGrace(reading: Reading, prevData: TrackingData): boolean {
+        //If no grace period remains, always return false
+        if(prevData.grace.period === 0) {
+            return false;
+        }
+        return (!this.isInBounds(reading) && prevData.streak.duration > 0);
     }
 
-    period(reading: GlucoseReading, prevData: TrackingData): number {
+    period(reading: Reading, prevData: TrackingData): number {
         //If it's a new day reset
         if(this.checkReset(reading, prevData)){
             return 60;
@@ -92,13 +96,13 @@ export class StatTracker {
             return 0;
         }
         //Check if a streak was active, if so && period > 0, decrement period
-        if(prevData.streak && this.isGrace(reading, prevData)){
+        if(prevData.streak.duration > 0 && this.isGrace(reading, prevData)){
             return prevData.grace.period - minutes;
         }
         return prevData.grace.period;
     }
 
-    setGrace(reading: GlucoseReading, prevData: TrackingData): GraceData {
+    setGrace(reading: Reading, prevData: TrackingData): GraceData {
         const newData: GraceData = {
             grace: this.isGrace(reading, prevData),
             period: this.period(reading, prevData)
@@ -108,7 +112,7 @@ export class StatTracker {
 
     // SET DAILY DATA
 
-    checkReset(reading: GlucoseReading, prevData: TrackingData): boolean {
+    checkReset(reading: Reading, prevData: TrackingData): boolean {
         const previousDay = prevData.daily.day;
         if (previousDay === null) {
             return true;
@@ -127,7 +131,7 @@ export class StatTracker {
         return readingDate !== storedDate;
     }
 
-    reset(reading: GlucoseReading, prevData: TrackingData): DailyData {
+    reset(reading: Reading, prevData: TrackingData): DailyData {
         const newData: DailyData = {
             day: reading.timestamp.getTime(),
             hits: 0,
@@ -136,7 +140,7 @@ export class StatTracker {
         return newData;
     }
 
-    setDaily(reading: GlucoseReading, prevData: TrackingData): DailyData {
+    setDaily(reading: Reading, prevData: TrackingData): DailyData {
         const key: "hits" | "misses" = this.isInBounds(reading)
             ? "hits"
             : "misses";
@@ -151,7 +155,7 @@ export class StatTracker {
     }
 
     // SET NOTIFICATION DATA
-    lowCD(reading: GlucoseReading, prevData: TrackingData): number {
+    lowCD(reading: Reading, prevData: TrackingData): number {
         const newData = {...prevData.notifications};
         if(prevData.notifications.lowCD > 0){
             return newData.lowCD - minutes;
@@ -162,7 +166,7 @@ export class StatTracker {
         return 0;
     }
 
-    highCD(reading: GlucoseReading, prevData: TrackingData): number {
+    highCD(reading: Reading, prevData: TrackingData): number {
         const newData = {...prevData.notifications};
         if(prevData.notifications.highCD > 0){
             return newData.highCD - minutes;
@@ -173,7 +177,7 @@ export class StatTracker {
         return 0;
     }
 
-    setNotifications(reading: GlucoseReading, prevData: TrackingData): NotificationData {
+    setNotifications(reading: Reading, prevData: TrackingData): NotificationData {
         const newData: NotificationData = {
             lowCD: this.lowCD(reading, prevData),
             highCD: this.highCD(reading, prevData),

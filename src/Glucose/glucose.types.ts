@@ -1,12 +1,11 @@
-export interface GlucoseReading {
+export interface Reading {
   timestamp: Date;
   value: number;
-  unit: "mg/dL";
 }
 
 export interface GlucoseRange {
-  acceptableMin: number; //70
-  acceptableMax: number; //180
+  acceptableMin: number;
+  acceptableMax: number;
 }
 
 export const DEFAULT_GLUCOSE_RANGE: Readonly<GlucoseRange> = {
