@@ -24,7 +24,6 @@ export class GlucoseProvider {
     return {
       timestamp: new Date(reading._raw.Timestamp),
       value: reading._raw.ValueInMgPerDl,
-      unit: "mg/dL"
     };
   }
 }
