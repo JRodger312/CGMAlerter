@@ -1,0 +1,20 @@
+{
+  "streak": {
+    "start": 0,
+    "streak": 4,
+    "grace": 0
+  },
+  "reading": {
+    "last": 149,
+    "high": false,
+    "low": false
+  },
+  "daily": {
+    "timestamp": "2026-10-27T18:55:07.000Z",
+    "hits": 4,
+    "misses": 0
+  },
+  "notifications": {
+    "lowCD": 0
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "module",
+  "dependencies": {
+    "dotenv": "^18.0.9",
+    "libre-link-unofficial-api": "^1.0.0-alpha.7",
+    "node-cron": "^4.6.0",
+    "node-telegram-bot-api": "^2.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "tsx": "^4.23.15"
+  },
+  "scripts": {
+    "start": "tsx index.ts"
+  }
+}
