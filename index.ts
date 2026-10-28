@@ -3,6 +3,7 @@ import cron from "node-cron";
 
 import { dbPath, minutes } from './constants.js'
 
+import { GlucoseMonitor } from "./src/Monitor/monitor.js";
 import { GlucoseProvider } from "./src/Glucose/glucose-provider.js";
 import { GlucoseService } from "./src/Glucose/glucose-service.js";
 import { NotificationService } from "./src/Notifications/notification-service.js";
@@ -35,8 +36,15 @@ const db = new JSONUtils<TrackingData>(dbPath);
 const tracker = new StatTracker();
 
 // Initialize SMS service
-const sms = new NotificationService(botToken, chatId);
-const smsHandler = new NotificationHandler(sms);
+const smsService = new NotificationService(botToken, chatId);
+const smsHandler = new NotificationHandler(smsService);
+
+const monitor = new GlucoseMonitor(
+    glucoseService,
+    tracker,
+    smsHandler,
+    db
+);
 
 //Reset the DB
 console.log("Resetting json db")
@@ -48,20 +56,13 @@ console.log("Starting glucose monitoring cycle...\n");
 
 
 cron.schedule(`*/${minutes} * * * *`, async () => {
-
-  try {
-    //get current reading and previous data
-    const reading = await glucoseService.getLatestReading();
-    const prevData = await db.read();
-
-    //setup new data object and check for notifications to be sent
-    const newData = tracker.getNewData(reading, prevData);
-    await smsHandler.sendNotification(newData, prevData);
-
-    //write the new data
-    await db.write(newData);
-    console.log("Cycle complete");
-  } catch (error) {
-    console.error("Error during glucose monitoring:", error);
-  }
-});
+        try {
+            await monitor.runCycle();
+        } catch (error) {
+            console.error("Error during glucose monitoring:", error);
+        }
+    },
+    {
+        noOverlap: true
+    }
+);
