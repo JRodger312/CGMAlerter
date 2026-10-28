@@ -1,13 +1,11 @@
 export interface StreakData {
     streak: boolean,
-    start: number | null,
-    end: number | null,
     duration: number
 }
 
 export interface GraceData {
     grace: boolean,
-    period: number | null
+    period: number
 }
 
 export interface ReadingData {
@@ -40,14 +38,12 @@ export interface TrackingData {
 
 export const reset: TrackingData = {
   "streak": {
-    "streak": false,
-    "start": null,
-    "end": null,
+    "streak": true,
     "duration": 0
   },
   "grace": {
     "grace": false,
-    "period": null
+    "period": 60
   },
   "reading": {
     "timestamp": null,

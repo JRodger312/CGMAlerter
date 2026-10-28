@@ -10,14 +10,14 @@ export class NotificationHandler {
         private messager: NotificationService
     ){}
 
-    //Send notification
+    // Send notification
 
     async sendNotification(newData: TrackingData, prevData: TrackingData): Promise<void> {
         const notification = this.getNotification(newData, prevData);
         await this.messager.sendMessage(notification);
     }
 
-    //functions to determine which message to send
+    // Function to determine which message to send
 
     getNotification(newData: TrackingData, prevData: TrackingData) {
         if(this.alertLow(newData, prevData)){
@@ -28,6 +28,8 @@ export class NotificationHandler {
         }
         return this.checkStreak(newData, prevData);
     }
+
+    // Utility functions
 
     alertLow(newData: TrackingData, prevData: TrackingData): boolean {
         return (newData.reading.value < 55 && prevData.notifications.lowCD === 0)

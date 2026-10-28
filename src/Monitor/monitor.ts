@@ -28,7 +28,7 @@ export class GlucoseMonitor {
 
         // Persist updated tracking data
         await this.db.write(newData);
-        console.log(newData);
+        console.log(newData.reading.value, newData.streak, newData.grace);
         console.log("Cycle complete");
     }
 }

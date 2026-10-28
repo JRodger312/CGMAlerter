@@ -49,53 +49,28 @@ export class StatTracker {
 
     //SET STREAK DATA
 
-    isStreak(reading: GlucoseReading, prevData: TrackingData): boolean {
-        return this.isInBounds(reading) ||
-            this.isGrace(reading, prevData);
+    isStreak(reading: GlucoseReading): boolean {
+        return this.isInBounds(reading);
     }
 
-    start(reading: GlucoseReading, prevData: TrackingData): number | null {
-        if(!prevData.streak.streak && this.isInBounds(reading)){
-            return reading.timestamp.getTime();
-        }
-        return prevData.streak.start;
-    }
-
-    end(reading: GlucoseReading, prevData: TrackingData): number | null {
-        if(prevData.streak.streak && !this.isInBounds(reading)){
-            return reading.timestamp.getTime();
-        }
-        return prevData.streak.end;
-    }
-
+    //LOGIC CONCERNING GRACE AND STREAKS WILL LIVE HERE
     duration(reading: GlucoseReading, prevData: TrackingData): number {
-        const start = this.start(reading, prevData);
-
-        if (start === null) {
-            return 0;
+        //If streak is active increment duration
+        if(this.isStreak(reading)){
+            return prevData.streak.duration + 1;
         }
 
-        const isActive = this.isStreak(reading, prevData);
-
-        const end = isActive
-            ? reading.timestamp.getTime()
-            : this.end(reading, prevData);
-
-        if (end === null) {
+        //If reading is out of bounds and no grace is available, reset
+        if(!this.isStreak(reading) && prevData.grace.period === 0){
             return 0;
         }
-        let newData = {...prevData.streak}
-        newData.duration += minutes;
-
-        return newData.duration;
+        return prevData.streak.duration;
     }
 
 
     setStreak(reading: GlucoseReading, prevData: TrackingData): StreakData {
         const newData: StreakData = {
-            streak: this.isStreak(reading, prevData),
-            start: this.start(reading, prevData),
-            end: this.end(reading, prevData),
+            streak: this.isStreak(reading),
             duration: this.duration(reading, prevData)
         }
         return newData;
@@ -104,26 +79,23 @@ export class StatTracker {
     //SET GRACE DATA
 
     isGrace(reading: GlucoseReading, prevData: TrackingData): boolean {
-        if (this.isInBounds(reading) || !prevData.streak.streak) {
-            return false;
-        }
-
-        const expiration = prevData.grace.period;
-
-        return expiration === null ||
-            reading.timestamp.getTime() <= expiration;
+        return (!this.isInBounds(reading) && prevData.streak.streak);
     }
 
-    period(reading: GlucoseReading, prevData: TrackingData): number | null {
-        if (!this.isGrace(reading, prevData)) {
-            return null;
+    period(reading: GlucoseReading, prevData: TrackingData): number {
+        //If it's a new day reset
+        if(this.checkReset(reading, prevData)){
+            return 60;
         }
-
-        if (prevData.grace.grace && prevData.grace.period !== null) {
-            return prevData.grace.period;
+        //If period was 0, return 0
+        if(prevData.grace.period === 0){
+            return 0;
         }
-
-        return reading.timestamp.getTime() + gracePeriod * 60 * 1000;
+        //Check if a streak was active, if so && period > 0, decrement period
+        if(prevData.streak && this.isGrace(reading, prevData)){
+            return prevData.grace.period - 1
+        }
+        return prevData.grace.period;
     }
 
     setGrace(reading: GlucoseReading, prevData: TrackingData): GraceData {
