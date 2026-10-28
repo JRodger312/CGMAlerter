@@ -1,9 +1,11 @@
 export interface TextNotification {
-    id: string,
-    message: string
+    type: "text";
+    id: string;
+    message: string;
 }
 
 export interface GifNotification {
-    gifUrl: string,
-    caption: string
+    type: "gif";
+    gifUrl: string;
+    caption: string;
 }

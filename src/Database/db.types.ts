@@ -26,6 +26,8 @@ export interface DailyData {
 
 export interface NotificationData {
     lowCD: number;
+    highCD: number;
+    lastSent: string;
 }
 
 export interface TrackingData {
@@ -60,6 +62,8 @@ export const reset: TrackingData = {
     "misses": 0
   },
   "notifications": {
-    "lowCD": 0
+    "lowCD": 0,
+    "highCD": 0,
+    "lastSent": ""
   }
 }

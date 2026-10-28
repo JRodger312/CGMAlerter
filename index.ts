@@ -1,6 +1,8 @@
 import "dotenv/config";
 import cron from "node-cron";
 
+import { dbPath, minutes } from './constants.js'
+
 import { GlucoseProvider } from "./src/Glucose/glucose-provider.js";
 import { GlucoseService } from "./src/Glucose/glucose-service.js";
 import { AchievementEngine } from "./src/Achievements/achievement-engine.js";
@@ -14,8 +16,6 @@ import { texts, gifs } from "./src/Notifications/notification-messages.js";
 
 const botToken = process.env.TELEGRAM_BOT_TOKEN;
 const chatId =  process.env.TELEGRAM_CHAT_ID;
-const dbPath = './db.json';
-const minutes = 1;
 
 // Validate database configuration
 if (!dbPath) {
@@ -54,24 +54,17 @@ console.log("Starting glucose monitoring cycle...\n");
 cron.schedule(`*/${minutes} * * * *`, async () => {
 
   try {
-    // 1. Fetch the latest glucose reading
-
+    //get current reading and previous data
     const reading = await glucoseService.getLatestReading();
-
-    // 2. Read the current db values
     const prevData = await db.read();
 
-    // 3. Setup incoming values
-
+    //setup new data object and check for notifications to be sent
     const newData = tracker.getNewData(reading, prevData);
+    await smsHandler.sendNotification(newData, prevData);
 
+    //write the new data
     await db.write(newData);
-    //check for low glucose alert
 
-    // 4. Log the updated state
-
-    const updatedData = await db.read();
-    console.log("Updated data:", updatedData);
   } catch (error) {
     console.error("Error during glucose monitoring:", error);
   }

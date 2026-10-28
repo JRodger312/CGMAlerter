@@ -1,20 +1,22 @@
-import type { DailyData, GraceData, ReadingData, StreakData, TrackingData } from "./db.types.js";
+import type { DailyData, GraceData, ReadingData, StreakData, NotificationData, TrackingData } from "./db.types.js";
 import type { GlucoseReading } from "../Glucose/glucose.types.js";
 import { DEFAULT_GLUCOSE_RANGE } from "../Glucose/glucose.types.js";
+import { minutes, gracePeriod } from '../../constants.js'
 
-export const GRACE_PERIOD = 60;
 
 export class StatTracker {
 
     //SET ALL DATA
+
     getNewData(reading: GlucoseReading,prevData: TrackingData): TrackingData {
-        return {
+        let newData = {
             reading: this.setReading(reading, prevData),
             streak: this.setStreak(reading, prevData),
             grace: this.setGrace(reading, prevData),
             daily: this.setDaily(reading, prevData),
-            notifications: { ...prevData.notifications }
-        };
+            notifications: this.setNotifications(reading, prevData)
+        }
+        return newData;
     }
 
     //SET READING DATA
@@ -66,7 +68,6 @@ export class StatTracker {
         return prevData.streak.end;
     }
 
-    //STILL NEED TO CALCULATE DURATION
     duration(reading: GlucoseReading, prevData: TrackingData): number {
         const start = this.start(reading, prevData);
 
@@ -83,8 +84,10 @@ export class StatTracker {
         if (end === null) {
             return 0;
         }
+        let newData = {...prevData.streak}
+        newData.duration += minutes;
 
-        return Math.floor((end - start) / 60000);
+        return newData.duration;
     }
 
 
@@ -120,7 +123,7 @@ export class StatTracker {
             return prevData.grace.period;
         }
 
-        return reading.timestamp.getTime() + GRACE_PERIOD * 60 * 1000;
+        return reading.timestamp.getTime() + gracePeriod * 60 * 1000;
     }
 
     setGrace(reading: GlucoseReading, prevData: TrackingData): GraceData {
@@ -172,6 +175,38 @@ export class StatTracker {
 
         newData[key]++;
 
+        return newData;
+    }
+
+    // SET NOTIFICATION DATA
+    lowCD(reading: GlucoseReading, prevData: TrackingData): number {
+        const newData = {...prevData.notifications};
+        if(prevData.notifications.lowCD > 0){
+            return newData.lowCD - 1;
+        };
+        if(this.isLow(reading)){
+            return 60;
+        }
+        return 0;
+    }
+
+    highCD(reading: GlucoseReading, prevData: TrackingData): number {
+        const newData = {...prevData.notifications};
+        if(prevData.notifications.highCD > 0){
+            return newData.highCD - 1;
+        }
+        if(this.isHigh(reading)){
+            return 60;
+        }
+        return 0;
+    }
+
+    setNotifications(reading: GlucoseReading, prevData: TrackingData): NotificationData {
+        const newData: NotificationData = {
+            lowCD: this.lowCD(reading, prevData),
+            highCD: this.highCD(reading, prevData),
+            lastSent: prevData.notifications.lastSent
+        };
         return newData;
     }
 }

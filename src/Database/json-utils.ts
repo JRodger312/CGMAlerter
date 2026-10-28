@@ -1,7 +1,35 @@
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile, writeFile, access } from "node:fs/promises";
+import { constants } from "node:fs";
 
 export class JSONUtils<T extends object> {
   constructor(private filePath: string) {}
+
+  // Create the JSON file if it doesn't already exist
+  async ensureFileExists(defaultData: T): Promise<void> {
+    try {
+      await access(this.filePath, constants.F_OK);
+    } catch {
+      try {
+        await writeFile(
+          this.filePath,
+          JSON.stringify(defaultData, null, 2),
+          { encoding: "utf-8", flag: "wx" }
+        );
+      } catch (error) {
+        // Another process may have created the file in the meantime.
+        if (
+          typeof error === "object" &&
+          error !== null &&
+          "code" in error &&
+          error.code === "EEXIST"
+        ) {
+          return;
+        }
+
+        throw error;
+      }
+    }
+  }
 
   // Read JSON file and convert it to an object
   async read(): Promise<T> {

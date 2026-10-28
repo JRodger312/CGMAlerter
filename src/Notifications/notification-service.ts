@@ -1,4 +1,5 @@
 import { Api } from "node-telegram-bot-api";
+import { GifNotification, TextNotification } from "./notification.types.js";
 
 export class NotificationService {
     private readonly api: Api;
@@ -9,7 +10,22 @@ export class NotificationService {
         this.chatId = chatId;
     }
 
-    async sendNotification(message: string): Promise<void> {
+    async sendMessage(message: TextNotification | GifNotification | null): Promise<void> {
+        if(message === null) {
+            return;
+        }
+        switch (message.type) {
+            case "text":
+                await this.sendText(message.message);
+                break;
+
+            case "gif":
+                await this.sendGif(message.gifUrl, message.caption);
+                break;
+        }
+    }
+
+    async sendText(message: string): Promise<void> {
         await this.api.sendMessage({
             chat_id: this.chatId,
             text: message
