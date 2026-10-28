@@ -1,9 +1,9 @@
 import { LibreLinkClient } from "libre-link-unofficial-api";
-import type { GlucoseReading } from "./glucose.types.ts";
+import type { Reading } from "./glucose.types.ts";
 
 export class GlucoseProvider {
   
-  async getReading(): Promise<GlucoseReading> {
+  async getReading(): Promise<Reading> {
     const email = process.env.LIBRE_EMAIL;
     const password = process.env.LIBRE_PASSWORD;
 

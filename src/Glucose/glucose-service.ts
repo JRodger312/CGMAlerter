@@ -1,5 +1,5 @@
 import { GlucoseProvider } from "./glucose-provider.js";
-import type { GlucoseReading } from "./glucose.types.ts";
+import type { Reading } from "./glucose.types.ts";
 
 export class GlucoseService {
 
@@ -7,11 +7,11 @@ export class GlucoseService {
     private provider: GlucoseProvider
   ) {}
 
-  async getLatestReading(): Promise<GlucoseReading> {
+  async getLatestReading(): Promise<Reading> {
 
-    const {value, timestamp, unit} = await this.provider.getReading();
+    const {value, timestamp} = await this.provider.getReading();
 
-    return {value, timestamp, unit}
+    return {value, timestamp}
   }
 
 }
