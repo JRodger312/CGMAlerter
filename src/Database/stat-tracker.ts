@@ -6,6 +6,17 @@ export const GRACE_PERIOD = 60;
 
 export class StatTracker {
 
+    //SET ALL DATA
+    getNewData(reading: GlucoseReading,prevData: TrackingData): TrackingData {
+        return {
+            reading: this.setReading(reading, prevData),
+            streak: this.setStreak(reading, prevData),
+            grace: this.setGrace(reading, prevData),
+            daily: this.setDaily(reading, prevData),
+            notifications: { ...prevData.notifications }
+        };
+    }
+
     //SET READING DATA
 
     isInBounds(reading: GlucoseReading): boolean {
@@ -37,45 +48,52 @@ export class StatTracker {
     //SET STREAK DATA
 
     isStreak(reading: GlucoseReading, prevData: TrackingData): boolean {
-        if (this.isInBounds(reading)) {
-            return true;
-        }
-
-        if (!prevData.streak.streak) {
-            return false;
-        }
-
-        const expiration = prevData.grace.period;
-
-        if (expiration === null) {
-            return true; // First out-of-bounds reading starts grace
-        }
-
-        return reading.timestamp.getTime() <= expiration;
+        return this.isInBounds(reading) ||
+            this.isGrace(reading, prevData);
     }
 
     start(reading: GlucoseReading, prevData: TrackingData): number | null {
-        if(prevData.streak.streak === false && this.isInBounds(reading) === true){
+        if(!prevData.streak.streak && this.isInBounds(reading)){
             return reading.timestamp.getTime();
         }
         return prevData.streak.start;
     }
 
     end(reading: GlucoseReading, prevData: TrackingData): number | null {
-        if(prevData.streak.streak === true && this.isInBounds(reading) === false){
+        if(prevData.streak.streak && !this.isInBounds(reading)){
             return reading.timestamp.getTime();
         }
         return prevData.streak.end;
     }
 
     //STILL NEED TO CALCULATE DURATION
+    duration(reading: GlucoseReading, prevData: TrackingData): number {
+        const start = this.start(reading, prevData);
+
+        if (start === null) {
+            return 0;
+        }
+
+        const isActive = this.isStreak(reading, prevData);
+
+        const end = isActive
+            ? reading.timestamp.getTime()
+            : this.end(reading, prevData);
+
+        if (end === null) {
+            return 0;
+        }
+
+        return Math.floor((end - start) / 60000);
+    }
+
 
     setStreak(reading: GlucoseReading, prevData: TrackingData): StreakData {
         const newData: StreakData = {
             streak: this.isStreak(reading, prevData),
             start: this.start(reading, prevData),
             end: this.end(reading, prevData),
-            duration: 0
+            duration: this.duration(reading, prevData)
         }
         return newData;
     }
@@ -83,7 +101,14 @@ export class StatTracker {
     //SET GRACE DATA
 
     isGrace(reading: GlucoseReading, prevData: TrackingData): boolean {
-        return (!this.isInBounds(reading) && prevData.streak.streak);
+        if (this.isInBounds(reading) || !prevData.streak.streak) {
+            return false;
+        }
+
+        const expiration = prevData.grace.period;
+
+        return expiration === null ||
+            reading.timestamp.getTime() <= expiration;
     }
 
     period(reading: GlucoseReading, prevData: TrackingData): number | null {
@@ -110,7 +135,6 @@ export class StatTracker {
 
     checkReset(reading: GlucoseReading, prevData: TrackingData): boolean {
         const previousDay = prevData.daily.day;
-
         if (previousDay === null) {
             return true;
         }
@@ -123,14 +147,14 @@ export class StatTracker {
         };
 
         const readingDate = reading.timestamp.toLocaleDateString("en-CA", options);
-        const storedDate = previousDay.toLocaleDateString("en-CA", options);
+        const storedDate = new Date(previousDay).toLocaleDateString("en-CA", options);
 
         return readingDate !== storedDate;
     }
 
     reset(reading: GlucoseReading, prevData: TrackingData): DailyData {
         const newData: DailyData = {
-            day: reading.timestamp,
+            day: reading.timestamp.getTime(),
             hits: 0,
             misses: 0
         }

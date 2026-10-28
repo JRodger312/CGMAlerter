@@ -14,7 +14,7 @@ import { texts, gifs } from "./src/Notifications/notification-messages.js";
 
 const botToken = process.env.TELEGRAM_BOT_TOKEN;
 const chatId =  process.env.TELEGRAM_CHAT_ID;
-const dbPath = process.env.DB_JSON;
+const dbPath = './db.json';
 const minutes = 1;
 
 // Validate database configuration
@@ -59,12 +59,13 @@ cron.schedule(`*/${minutes} * * * *`, async () => {
     const reading = await glucoseService.getLatestReading();
 
     // 2. Read the current db values
+    const prevData = await db.read();
 
-    const data = await db.read();
+    // 3. Setup incoming values
 
-    // 3. Determine and apply the appropriate action
+    const newData = tracker.getNewData(reading, prevData);
 
-
+    await db.write(newData);
     //check for low glucose alert
 
     // 4. Log the updated state

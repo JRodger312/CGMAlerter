@@ -19,7 +19,7 @@ export interface ReadingData {
 }
 
 export interface DailyData {
-    day: Date | null;
+    day: number | null;
     hits: number;
     misses: number;
 }
