@@ -93,7 +93,7 @@ export class StatTracker {
         }
         //Check if a streak was active, if so && period > 0, decrement period
         if(prevData.streak && this.isGrace(reading, prevData)){
-            return prevData.grace.period - 1
+            return prevData.grace.period - minutes;
         }
         return prevData.grace.period;
     }
@@ -154,7 +154,7 @@ export class StatTracker {
     lowCD(reading: GlucoseReading, prevData: TrackingData): number {
         const newData = {...prevData.notifications};
         if(prevData.notifications.lowCD > 0){
-            return newData.lowCD - 1;
+            return newData.lowCD - minutes;
         };
         if(this.isLow(reading)){
             return 60;
@@ -165,7 +165,7 @@ export class StatTracker {
     highCD(reading: GlucoseReading, prevData: TrackingData): number {
         const newData = {...prevData.notifications};
         if(prevData.notifications.highCD > 0){
-            return newData.highCD - 1;
+            return newData.highCD - minutes;
         }
         if(this.isHigh(reading)){
             return 60;
