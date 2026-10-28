@@ -7,17 +7,18 @@ import type { TextNotification } from "./notification.types.js";
 export class NotificationHandler {
 
     constructor (
-        private provider: NotificationService
+        private messager: NotificationService
     ){}
 
     //Send notification
 
     async sendNotification(newData: TrackingData, prevData: TrackingData): Promise<void> {
         const notification = this.getNotification(newData, prevData);
-        await this.provider.sendMessage(notification);
+        await this.messager.sendMessage(notification);
     }
 
     //functions to determine which message to send
+
     getNotification(newData: TrackingData, prevData: TrackingData) {
         if(this.alertLow(newData, prevData)){
             return gifs.low;

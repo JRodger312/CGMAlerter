@@ -5,14 +5,12 @@ import { dbPath, minutes } from './constants.js'
 
 import { GlucoseProvider } from "./src/Glucose/glucose-provider.js";
 import { GlucoseService } from "./src/Glucose/glucose-service.js";
-import { AchievementEngine } from "./src/Achievements/achievement-engine.js";
 import { NotificationService } from "./src/Notifications/notification-service.js";
 import { NotificationHandler } from "./src/Notifications/notification-handler.js"
 import { JSONUtils } from "./src/Database/json-utils.js";
 import { StatTracker } from "./src/Database/stat-tracker.js";
-import type { StreakData, TrackingData } from "./src/Database/db.types.js";
+import type { TrackingData } from "./src/Database/db.types.js";
 import { reset } from "./src/Database/db.types.js";
-import { texts, gifs } from "./src/Notifications/notification-messages.js";
 
 const botToken = process.env.TELEGRAM_BOT_TOKEN;
 const chatId =  process.env.TELEGRAM_CHAT_ID;
@@ -31,8 +29,6 @@ if (!botToken || !chatId) {
 const glucoseProvider = new GlucoseProvider();
 const glucoseService = new GlucoseService(glucoseProvider);
 
-// Initialize achievement engine
-const achievementEngine = new AchievementEngine();
 
 // Initialize database
 const db = new JSONUtils<TrackingData>(dbPath);
