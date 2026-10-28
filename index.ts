@@ -64,7 +64,7 @@ cron.schedule(`*/${minutes} * * * *`, async () => {
 
     //write the new data
     await db.write(newData);
-
+    console.log("Cycle complete");
   } catch (error) {
     console.error("Error during glucose monitoring:", error);
   }

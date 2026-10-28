@@ -1,17 +1,17 @@
 import { TextNotification, GifNotification } from "./notification.types.js";
 
 export const texts: Record<string, TextNotification> = {
-  3: {
+  180: {
     type: "text",
     id: "three-hour-streak",
     message: "🎉 Three hours in range!"
   },
-  5: {
+  360: {
     type: "text",
     id: "six-hour-streak",
     message: "🏆 Six hours in range!"
   },
-  7: {
+  720: {
     type: "text",
     id: "twelve-hour-streak",
     message: "🔥 Twelve hours in range!"
