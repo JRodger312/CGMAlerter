@@ -8,7 +8,7 @@ type TrackingDataOverrides = {
 
 export class TestDataFactory {
 
-    createGlucose(
+    testReading(
         timestamp: Date = new Date("2026-01-01T12:00:00Z"),
         value: number = 100
     ): Reading {
@@ -18,7 +18,7 @@ export class TestDataFactory {
         };
     }
 
-    createTrackingData(
+    testTracking(
         overrides: TrackingDataOverrides = {}
     ): TrackingData {
         const defaults = structuredClone(reset);

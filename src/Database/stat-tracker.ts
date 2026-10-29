@@ -10,7 +10,7 @@ export class StatTracker {
 
     getNewData(reading: Reading, prevData: TrackingData): TrackingData {
         let newData = {
-            reading: this.setReading(reading, prevData),
+            reading: this.setReading(reading),
             streak: this.setStreak(reading, prevData),
             grace: this.setGrace(reading, prevData),
             daily: this.setDaily(reading, prevData),
@@ -36,7 +36,7 @@ export class StatTracker {
         return reading.value > 300;
     }
 
-    setReading(reading: Reading, data: TrackingData): ReadingData {
+    setReading(reading: Reading): ReadingData {
         const newData: ReadingData = {
             timestamp: reading.timestamp.getTime(),
             value: reading.value,
