@@ -1,10 +1,9 @@
 import { describe, it, expect } from "@jest/globals";
 
-import { StatTracker } from "../../Database/stat-tracker.js";
-import { TestDataFactory } from "../DataFactory.js";
-import { timeStamp } from "node:console";
+import { StatTracker } from "../Database/StatTracker.js";
+import { TestDataFactory } from "./DataFactory.js";
 
-describe("StatTracker", () => {
+describe("StatTracker-Readings", () => {
 
     const tracker = new StatTracker();
     const {testReading, testTracking} = new TestDataFactory();
@@ -19,7 +18,6 @@ describe("StatTracker", () => {
 
     it("should identify an out-of-range glucose reading", () => {
         const reading = testReading(
-            new Date(),
             200
         );
 
@@ -30,7 +28,6 @@ describe("StatTracker", () => {
 
     it("should identify a critically low reading", () => {
         const reading = testReading(
-            new Date(),
             50
         );
 
@@ -39,7 +36,6 @@ describe("StatTracker", () => {
 
     it("should identify a critically high reading", () => {
         const reading = testReading(
-            new Date(),
             301
         );
         expect(tracker.isHigh(reading)).toBe(true);

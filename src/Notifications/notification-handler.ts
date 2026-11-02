@@ -2,6 +2,7 @@ import { TrackingData } from "../Database/db.types.js";
 import { NotificationService } from "./notification-service.js";
 import { texts, gifs } from "./notification-messages.js";
 import type { TextNotification } from "./notification.types.js";
+import { highAlert, lowAlert } from "../Glucose/glucose.types.js";
 //Takes Glucose Readings and the Current Streak to determine which message to send
 
 export class NotificationHandler {
@@ -32,11 +33,11 @@ export class NotificationHandler {
     // Utility functions
 
     alertLow(newData: TrackingData, prevData: TrackingData): boolean {
-        return (newData.reading.value < 55 && prevData.notifications.lowCD === 0)
+        return (newData.reading.value < lowAlert && prevData.notifications.lowCD === 0)
     }
 
     alertHigh(newData: TrackingData, prevData: TrackingData): boolean {
-        return (newData.reading.value > 300 && prevData.notifications.highCD === 0)
+        return (newData.reading.value > highAlert && prevData.notifications.highCD === 0)
     }
 
     checkStreak(newData: TrackingData, prevData: TrackingData): TextNotification | null {

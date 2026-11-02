@@ -13,5 +13,5 @@ export const DEFAULT_GLUCOSE_RANGE: Readonly<GlucoseRange> = {
   acceptableMax: 170,
 };
 
-//ANGRY DEVIL FACE FOR URGENT LOW < 55
-
+export const lowAlert = 55;
+export const highAlert = 300;

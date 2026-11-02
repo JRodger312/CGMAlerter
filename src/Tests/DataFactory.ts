@@ -9,13 +9,28 @@ type TrackingDataOverrides = {
 export class TestDataFactory {
 
     testReading(
-        timestamp: Date = new Date("2026-01-01T12:00:00Z"),
-        value: number = 100
+        value: number = 100,
+        timestamp?: Date
     ): Reading {
         return {
-            timestamp,
-            value,
+            timestamp: timestamp? timestamp : new Date(),
+            value
         };
+    }
+
+    testReadings(
+        value: number = 100,
+        count: number = 1,
+        timestamp?: Date
+    ): Reading[] {
+        let testReadings = [];
+        for(let i = 0; i < count; i++){
+            testReadings.push({
+                timestamp: timestamp? timestamp : new Date(),
+                value: value
+            })
+        }
+        return testReadings;
     }
 
     testTracking(

@@ -4,12 +4,12 @@ import cron from "node-cron";
 import { dbPath, minutes } from './constants.js'
 
 import { GlucoseMonitor } from "./src/Monitor/monitor.js";
-import { GlucoseProvider } from "./src/Glucose/glucose-provider.js";
-import { GlucoseService } from "./src/Glucose/glucose-service.js";
+import { GlucoseProvider } from "./src/Glucose/GlucoseProvider.js";
+import { GlucoseService } from "./src/Glucose/GlucoseService.js";
 import { NotificationService } from "./src/Notifications/notification-service.js";
 import { NotificationHandler } from "./src/Notifications/notification-handler.js"
-import { JSONUtils } from "./src/Database/json-utils.js";
-import { StatTracker } from "./src/Database/stat-tracker.js";
+import { JsonUtils } from "./src/Database/JsonUtils.js";
+import { StatTracker } from "./src/Database/StatTracker.js";
 import type { TrackingData } from "./src/Database/db.types.js";
 import { reset } from "./src/Database/db.types.js";
 
@@ -32,7 +32,7 @@ const glucoseService = new GlucoseService(glucoseProvider);
 
 
 // Initialize database
-const db = new JSONUtils<TrackingData>(dbPath);
+const db = new JsonUtils<TrackingData>(dbPath);
 const tracker = new StatTracker();
 
 // Initialize SMS service

@@ -1,5 +1,5 @@
 import { LibreLinkClient } from "libre-link-unofficial-api";
-import type { Reading } from "./glucose.types.ts";
+import type { Reading } from "./glucose.types.js";
 
 export class GlucoseProvider {
   
@@ -20,7 +20,6 @@ export class GlucoseProvider {
     await client.login();
 
     const reading = await client.read();
-
     return {
       timestamp: new Date(reading._raw.Timestamp),
       value: reading._raw.ValueInMgPerDl,

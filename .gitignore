@@ -1,3 +1,4 @@
 .env
-db.json
 node_modules
+src/Tests/test.db.json
+db/db.json

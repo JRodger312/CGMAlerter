@@ -1,7 +1,7 @@
 import { readFile, writeFile, access } from "node:fs/promises";
 import { constants } from "node:fs";
 
-export class JSONUtils<T extends object> {
+export class JsonUtils<T extends object> {
   constructor(private filePath: string) {}
 
   // Create the JSON file if it doesn't already exist

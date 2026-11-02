@@ -17,7 +17,7 @@ export interface ReadingData {
 }
 
 export interface DailyData {
-    day: number | null;
+    day: number;
     hits: number;
     misses: number;
 }
@@ -53,7 +53,7 @@ export const reset: TrackingData = {
     "low": false
   },
   "daily": {
-    "day": null,
+    "day": new Date().getTime(),
     "hits": 0,
     "misses": 0
   },

@@ -1,5 +1,5 @@
-import { GlucoseProvider } from "./glucose-provider.js";
-import type { Reading } from "./glucose.types.ts";
+import { GlucoseProvider } from "./GlucoseProvider.js";
+import type { Reading } from "./glucose.types.js";
 
 export class GlucoseService {
 
@@ -13,5 +13,4 @@ export class GlucoseService {
 
     return {value, timestamp}
   }
-
 }
