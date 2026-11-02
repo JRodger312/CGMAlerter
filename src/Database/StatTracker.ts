@@ -1,6 +1,5 @@
-import type { DailyData, GraceData, ReadingData, StreakData, NotificationData, TrackingData } from "./db.types.js";
+import type { ReadingData, TrackingData } from "./db.types.js";
 import type { Reading } from "../Glucose/glucose.types.js";
-import { minutes } from '../../constants.js';
 
 import { Utils } from './Utils.js';
 import { Streak } from './Tracking/Streak.js';
